@@ -23,14 +23,20 @@ public class TodoController {
     //list-todos
     @RequestMapping("list-todos")
     public String listAllTodoPage(ModelMap modalMap){
-        List<Todo> todos = todoService.findByUsername("emadd9");
+        String username = getLoggedinUsername(modalMap);
+        List<Todo> todos = todoService.findByUsername(username);
         modalMap.addAttribute("todos",todos);
         return "listTodos";
     }
+
+    private static String getLoggedinUsername(ModelMap modalMap) {
+        return (String) modalMap.get("name");
+    }
+
     //add-todos
     @RequestMapping(value="add-todo",method=RequestMethod.GET)
     public String showNewTodoPage(ModelMap modelMap){
-        String username = (String) modelMap.get("name");
+        String username = getLoggedinUsername(modelMap);
         Todo todo = new Todo(0,username,"", LocalDate.now().plusYears(1),false);
         modelMap.put("todo",todo);
         return "todo";
@@ -42,8 +48,31 @@ public class TodoController {
             return "todo";
         } else {
 
-            String username = (String) modelMap.get("name");
+            String username = getLoggedinUsername(modelMap);
             todoService.addNewTodo(username, todo.getDescription(), LocalDate.now().plusYears(1), false);
+            return "redirect:list-todos";
+        }
+    }
+    @RequestMapping("delete-todo")
+    public String deleteTodo(@RequestParam int id) {
+        todoService.deleteById(id);
+        return "redirect:list-todos";
+    }
+    @RequestMapping(value="update-todo",method=RequestMethod.GET)
+    public String updateTodoPage(@RequestParam int id,ModelMap modelMap){
+        String username = getLoggedinUsername(modelMap);
+        Todo todo = todoService.findById(id);
+        modelMap.addAttribute("todo",todo);
+        return "todo";
+    }
+    @RequestMapping(value="update-todo",method=RequestMethod.POST)
+    public String listUpdateTodo(@Valid Todo todo,BindingResult result,ModelMap modelMap){
+        if(result.hasErrors()){
+            return "todo";
+        }else {
+            String username = getLoggedinUsername(modelMap);
+            todo.setUsername(username);
+            todoService.updateTodo(todo);
             return "redirect:list-todos";
         }
     }
