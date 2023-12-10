@@ -1,16 +1,25 @@
 package com.emadd9.springboot.demoapplication.todo;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
-
+@Entity(name="TODOLIST")
 public class Todo {
+    @Id
+    @GeneratedValue
     private int id;
     private String username;
     @Size(min=10,message="Min 10 Characters!")
     private String description;
     private LocalDate targetDate;
+    @Column(name="status")
     private boolean done;
+
+    public Todo(){}
 
     public Todo(int id, String username, String description, LocalDate targetDate, boolean done) {
         this.id = id;
